@@ -1,48 +1,36 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Trophy, Medal, Award, Users } from 'lucide-react';
+import axios from 'axios';
 
-const leaderboardData = [
-  {
-    rank: 1,
-    name: 'Sarah Johnson',
-    points: 2840,
-    reduction: 45.2,
-    badge: 'Eco Warrior',
-  },
-  {
-    rank: 2,
-    name: 'Michael Chen',
-    points: 2560,
-    reduction: 42.8,
-    badge: 'Climate Champion',
-  },
-  {
-    rank: 3,
-    name: 'Emma Davis',
-    points: 2340,
-    reduction: 38.5,
-    badge: 'Green Guardian',
-  },
-  {
-    rank: 4,
-    name: 'James Wilson',
-    points: 2120,
-    reduction: 35.2,
-    badge: 'Earth Defender',
-  },
-  {
-    rank: 5,
-    name: 'Lisa Anderson',
-    points: 1980,
-    reduction: 32.6,
-    badge: 'Sustainability Star',
-  },
-];
+interface Leader {
+  rank: number;
+  name: string;
+  points: number;
+  reduction: number;
+  badge: string;
+}
 
 export default function LeaderboardPage() {
+  const [leaderboardData, setLeaderboardData] = useState<Leader[]>([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/leaderboard')
+      .then((res) => {
+        const dataWithRanks = res.data.map((user: any, index: number) => ({
+          ...user,
+          rank: index + 1,
+        }));
+        setLeaderboardData(dataWithRanks);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch leaderboard:', err);
+      });
+  }, []);
+
   return (
     <div className="container py-8">
       <div className="mb-8">

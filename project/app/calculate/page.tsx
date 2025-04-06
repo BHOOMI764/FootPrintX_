@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -15,6 +13,8 @@ import {
   ShoppingBag,
   Trash2,
 } from 'lucide-react';
+import axios from 'axios';
+ // for notifications
 
 export default function CalculatePage() {
   const [transportation, setTransportation] = useState(0);
@@ -24,6 +24,31 @@ export default function CalculatePage() {
   const [flights, setFlights] = useState(0);
 
   const totalEmissions = transportation + energy + waste + shopping + flights;
+
+  // ✅ Save handler function
+  const handleSave = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/calculate', {
+        transportation,
+        energy,
+        waste,
+        shopping,
+        flights,
+        totalEmissions,
+      });
+
+      if (response.status === 200) {
+        console.log('Calculation saved successfully:', response.data);
+     
+      } else {
+        console.warn('Unexpected server response:', response);
+      
+      }
+    } catch (error: any) {
+      console.error('Error saving calculation:', error);
+      
+    }
+  };
 
   return (
     <div className="container py-8">
@@ -35,6 +60,7 @@ export default function CalculatePage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
+        {/* --- Transportation Card --- */}
         <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <Car className="h-8 w-8 text-green-600" />
@@ -59,6 +85,7 @@ export default function CalculatePage() {
           </div>
         </Card>
 
+        {/* --- Energy Usage Card --- */}
         <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <Home className="h-8 w-8 text-green-600" />
@@ -83,6 +110,7 @@ export default function CalculatePage() {
           </div>
         </Card>
 
+        {/* --- Waste Card --- */}
         <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <Trash2 className="h-8 w-8 text-green-600" />
@@ -107,6 +135,7 @@ export default function CalculatePage() {
           </div>
         </Card>
 
+        {/* --- Shopping Card --- */}
         <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <ShoppingBag className="h-8 w-8 text-green-600" />
@@ -131,6 +160,7 @@ export default function CalculatePage() {
           </div>
         </Card>
 
+        {/* --- Air Travel Card --- */}
         <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <Plane className="h-8 w-8 text-green-600" />
@@ -156,6 +186,7 @@ export default function CalculatePage() {
         </Card>
       </div>
 
+      {/* --- Total Carbon Emissions Card --- */}
       <Card className="mt-8 p-6">
         <div className="mb-6 flex items-center gap-4">
           <Factory className="h-8 w-8 text-green-600" />
@@ -173,7 +204,9 @@ export default function CalculatePage() {
             <span className="font-semibold">{totalEmissions.toFixed(1)} kg CO₂e</span>
           </div>
         </div>
-        <Button className="mt-6 w-full">Save Calculation</Button>
+        <Button className="mt-6 w-full" onClick={handleSave}>
+          Save Calculation
+        </Button>
       </Card>
     </div>
   );
